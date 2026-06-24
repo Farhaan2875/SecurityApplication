@@ -50,7 +50,7 @@ public class WebSecurityConfig {  // CONFIGURING THE SECURITY FILTER CHAIN
 
         return new InMemoryUserDetailsManager(normalUser, adminUser);
     }
-
+    // DIFFERENCE BETWEEN ENCODING AND ENCRYPTION
     @Bean
     PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
