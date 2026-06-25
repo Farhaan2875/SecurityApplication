@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -33,4 +35,13 @@ public class AppConfig {
     AuditorAware<String> getAuditorAwareImpl(){
         return new AuditorAwareImpl();
     }
+
+    // DIFFERENCE BETWEEN ENCODING AND ENCRYPTION
+    //Bcrypt is a one way hash you cannot get your password from encrypted (whereas in other encryption you can get password back from encrypted data)
+    @Bean
+    PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+
 }
