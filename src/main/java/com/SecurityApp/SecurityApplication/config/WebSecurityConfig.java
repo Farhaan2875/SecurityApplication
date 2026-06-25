@@ -3,6 +3,8 @@ package com.SecurityApp.SecurityApplication.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,10 +23,10 @@ public class WebSecurityConfig {  // CONFIGURING THE SECURITY FILTER CHAIN
     // BY DEFAULT WE HAVE THE LOGIN PAGE AND SPRING SECURITY DEPENDENCY BY DEFAULT USES SESSION ID AND CSRF TOKENS
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity){
+    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/posts").permitAll() // permits these without authentication for all
+                        .requestMatchers("/posts","/error","/auth/**").permitAll() // permits these without authentication for all
                         .requestMatchers("/posts/**").hasAnyRole("ADMIN") //only ADMIN ROLE allowed after posts
                         .anyRequest().authenticated()) // authenticates all https requests
                 .csrf(csrfConfig -> csrfConfig.disable())
@@ -33,24 +35,34 @@ public class WebSecurityConfig {  // CONFIGURING THE SECURITY FILTER CHAIN
         return httpSecurity.build();
     }
 
-    //ONLY FRO TESTING -> IN PRODUCTION WE NEED TO STORE IN DATABASE (ROLES AND USER DETAILS)
     @Bean
-    UserDetailsService inMemoryUserDetailsService(){
-        UserDetails normalUser = User
-                .withUsername("farhaan")
-                .password(passwordEncoder().encode("farhaan123"))
-                .roles("USER") //custom roles
-                .build();
-
-        UserDetails adminUser = User
-                .withUsername("admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("ADMIN") //custom roles
-                .build();
-
-        return new InMemoryUserDetailsManager(normalUser, adminUser);
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+        return config.getAuthenticationManager();
     }
+
+
+
+    //ONLY FRO TESTING -> IN PRODUCTION WE NEED TO STORE IN DATABASE (ROLES AND USER DETAILS)
+//    @Bean
+//    UserDetailsService inMemoryUserDetailsService(){
+//        UserDetails normalUser = User
+//                .withUsername("farhaan")
+//                .password(passwordEncoder().encode("farhaan123"))
+//                .roles("USER") //custom roles
+//                .build();
+//
+//        UserDetails adminUser = User
+//                .withUsername("admin")
+//                .password(passwordEncoder().encode("admin"))
+//                .roles("ADMIN") //custom roles
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(normalUser, adminUser);
+//    }
+
+
     // DIFFERENCE BETWEEN ENCODING AND ENCRYPTION
+    //Bcrypt is a one way hash you cannot get your password from encrypted (whereas in other encryption you can get password back from encrypted data)
     @Bean
     PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
